@@ -3,11 +3,34 @@
 Tool to merge XLF translation files.
 And it can also find dupes in XLF files.
 
+
+## Installation
+
+### Using PIP
+
+```bash
+pip install xlf-merge
+```
+
+### Using package Debian/Archlinux package
+
+Go to https://repository.salamek.cz/ to see how to setup access to my public repository, then just do:
+
+debian
+```bash
+apt update && apt install xlf-merge
+```
+
+archlinux
+```bash
+pacman -Sy xlf-merge
+```
+
 ## Usage
 
 ### Merging
 
-```
+```bash
 xlf-merge merge <old_translation_file> <new_translation_file> <output_file> --method='source/id'
 ```
 

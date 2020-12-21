@@ -8,7 +8,7 @@ test:debian:
   stage: test
   script:
     - apt-get update -qy
-    - apt-get install -y python3-setuptools python3-pytest-runner python3-pytest python3-pylint-common python3-pytest-cov python3-xmltodict
+    - apt-get install -y python3-setuptools python3-pytest-runner python3-pytest python3-pylint-common python3-pytest-cov python3-xmltodict python3-docopt
     - python3 setup.py test
   tags:
     - debian
@@ -19,7 +19,7 @@ test:archlinux:
     - echo "[salamek]" >> /etc/pacman.conf
     - echo "Server = https://repository.salamek.cz/arch/pub/any" >> /etc/pacman.conf
     - echo "SigLevel = Optional" >> /etc/pacman.conf
-    - pacman -Sy python-pytest-runner python-pytest python-pylint python-pytest-cov python-xmltodict --noconfirm
+    - pacman -Sy python-pytest-runner python-pytest python-pylint python-pytest-cov python-xmltodict python-docopt --noconfirm
     - python setup.py test
   tags:
     - archlinux
@@ -28,7 +28,7 @@ package:debian:
   stage: package
   script:
     - apt-get update -qy
-    - apt-get install -y python-all python3-pytest-runner python3-stdeb python3-pytest python3-pylint-common python3-pytest-cov python3-xmltodict tox
+    - apt-get install -y python-all python3-pytest-runner python3-stdeb python3-pytest python3-pylint-common python3-pytest-cov python3-xmltodict python3-docopt tox
     - rm -rf "./deb_dist"
     - python3 setup.py --command-packages=stdeb.command bdist_deb
   tags:
@@ -45,7 +45,7 @@ package:archlinux:
     - echo "[salamek]" >> /etc/pacman.conf
     - echo "Server = https://repository.salamek.cz/arch/pub/any" >> /etc/pacman.conf
     - echo "SigLevel = Optional" >> /etc/pacman.conf
-    - pacman -Sy python-pip sudo openssh binutils fakeroot python-xmltodict --noconfirm
+    - pacman -Sy python-pip sudo openssh binutils fakeroot python-xmltodict python-docopt --noconfirm
     - useradd -m -G users -s /bin/bash package
     - chown -R package:users archlinux
     - cd archlinux

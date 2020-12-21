@@ -9,7 +9,7 @@ test:debian:
   script:
     - apt-get update -qy
     - apt-get install -y python3-setuptools python3-pytest-runner python3-pytest python3-pylint-common python3-pytest-cov python3-xmltodict
-    #- python3 setup.py test
+    - python3 setup.py test
   tags:
     - debian
 
@@ -55,7 +55,7 @@ package:archlinux:
 
   artifacts:
     paths:
-      - archlinux/python-xlf-merge*
+      - archlinux/xlf-merge*
     expire_in: 1d
 
 packagetest:debian:
@@ -77,7 +77,7 @@ packagetest:archlinux:
     - echo "SigLevel = Optional" >> /etc/pacman.conf
     - pacman -Sy --noconfirm
     - cd archlinux
-    - pacman -U python-xlf-merge*.pkg.tar.zst --noconfirm
+    - pacman -U xlf-merge*.pkg.tar.zst --noconfirm
   tags:
     - archlinux
   dependencies:
@@ -96,9 +96,9 @@ repoupdate:
     - mkdir -p ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/www/arch/pub/any//python-xlf-merge*.pkg.tar.zst'
-    - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/cache/deb/pub/python3-xlf-merge*.deb'
-    - scp archlinux/python-xlf-merge*.pkg.tar.zst www-data@repository:/var/www/repository.salamek.cz/www/arch/pub/any
+    - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/www/arch/pub/any/xlf-merge*.pkg.tar.zst'
+    - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/cache/deb/pub/xlf-merge*.deb'
+    - scp archlinux/xlf-merge*.pkg.tar.zst www-data@repository:/var/www/repository.salamek.cz/www/arch/pub/any
     - scp deb_dist/*.deb www-data@repository:/var/www/repository.salamek.cz/cache/deb/pub
     - ssh www-data@repository '/var/www/repository.salamek.cz/deb-pub-update.sh'
     - ssh www-data@repository '/var/www/repository.salamek.cz/arch-pub-update.sh'

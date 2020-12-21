@@ -1,4 +1,4 @@
-pkgname=python-xlf-merge
+pkgname=xlf-merge
 pkgver=0.0.1
 pkgdesc="Python tool for merging xlf translation files"
 pkgrel=1

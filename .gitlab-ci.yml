@@ -16,9 +16,6 @@ test:debian:
 test:archlinux:
   stage: test
   script:
-    - echo "[salamek]" >> /etc/pacman.conf
-    - echo "Server = https://repository.salamek.cz/arch/pub/any" >> /etc/pacman.conf
-    - echo "SigLevel = Optional" >> /etc/pacman.conf
     - pacman -Sy python-pytest-runner python-pytest python-pylint python-pytest-cov python-xmltodict python-docopt --noconfirm
     - python setup.py test
   tags:
@@ -42,9 +39,6 @@ package:debian:
 package:archlinux:
   stage: package
   script:
-    - echo "[salamek]" >> /etc/pacman.conf
-    - echo "Server = https://repository.salamek.cz/arch/pub/any" >> /etc/pacman.conf
-    - echo "SigLevel = Optional" >> /etc/pacman.conf
     - pacman -Sy python-pip sudo openssh binutils fakeroot python-xmltodict python-docopt --noconfirm
     - useradd -m -G users -s /bin/bash package
     - chown -R package:users archlinux
@@ -72,9 +66,6 @@ packagetest:debian:
 packagetest:archlinux:
   stage: packagetest
   script:
-    - echo "[salamek]" >> /etc/pacman.conf
-    - echo "Server = https://repository.salamek.cz/arch/pub/any" >> /etc/pacman.conf
-    - echo "SigLevel = Optional" >> /etc/pacman.conf
     - pacman -Sy --noconfirm
     - cd archlinux
     - pacman -U xlf-merge*.pkg.tar.zst --noconfirm
@@ -97,9 +88,9 @@ repoupdate:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/www/arch/pub/any/xlf-merge*.pkg.tar.zst'
-    - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/cache/deb/pub/xlf-merge*.deb'
+    - ssh www-data@repository 'rm -rf /var/www/repository.salamek.cz/cache/deb/pub/all/xlf-merge*.deb'
     - scp archlinux/xlf-merge*.pkg.tar.zst www-data@repository:/var/www/repository.salamek.cz/www/arch/pub/any
-    - scp deb_dist/*.deb www-data@repository:/var/www/repository.salamek.cz/cache/deb/pub
+    - scp deb_dist/*.deb www-data@repository:/var/www/repository.salamek.cz/cache/deb/pub/all
     - ssh www-data@repository '/var/www/repository.salamek.cz/deb-pub-update.sh'
     - ssh www-data@repository '/var/www/repository.salamek.cz/arch-pub-update.sh'
     - python3 setup.py sdist

@@ -8,7 +8,7 @@ setup(
     package_data={'xlf_merge': ['py.typed']},
     install_requires=[
         'docopt',
-        'xmltodict',
+        'lxml'
     ],
     url='https://github.com/Salamek/xlf-merge',
     license='GPL-3.0 ',

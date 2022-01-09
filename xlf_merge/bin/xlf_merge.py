@@ -25,25 +25,18 @@ Options:
 
 import sys
 import signal
-import xmltodict
 from typing import List
 from functools import wraps
-from xml.dom.minidom import parseString
+from xlf_merge.XlfParser import XlfParser
 
 from docopt import docopt
 
 OPTIONS = docopt(__doc__)
 
 
-def get_file_trans_units(file_parsed: dict) -> list:
-    trans_units = file_parsed['xliff']['file']['body']['trans-unit']
-    if isinstance(trans_units, dict):
-        trans_units = [trans_units]
-
-    return trans_units
-
-
 def find_trans_unit(needle: str, trans_units: List[dict], key: str) -> List[dict]:
+    if key.startswith('@'):
+        return list(filter(lambda d: d[1]['attrib'][key] == needle, enumerate(trans_units)))
     return list(filter(lambda d: d[1][key] == needle, enumerate(trans_units)))
 
 
@@ -87,15 +80,14 @@ def merge() -> None:
     with open(OPTIONS['<from_file>'], 'r') as from_file_handle:
         from_file = from_file_handle.read()
 
-    from_file_parsed = xmltodict.parse(from_file, dict_constructor=dict)
-
     with open(OPTIONS['<with_file>'], 'r') as with_file_handle:
         with_file = with_file_handle.read()
 
-    with_file_parsed = xmltodict.parse(with_file, dict_constructor=dict)
+    from_file_xlf_parser = XlfParser.from_xml(from_file)
+    with_file_xlf_parser = XlfParser.from_xml(with_file)
 
-    from_file_trans_units = get_file_trans_units(from_file_parsed)
-    with_file_trans_units = get_file_trans_units(with_file_parsed)
+    from_file_trans_units = from_file_xlf_parser.get_trans_units()
+    with_file_trans_units = with_file_xlf_parser.get_trans_units()
 
     key = {
         'id': '@id',
@@ -119,11 +111,8 @@ def merge() -> None:
             del with_file_trans_units[found_index]
             with_file_trans_units.insert(found_index, found_trans_unit)
 
-    # Update trans units in with_file_parsed
-    with_file_parsed['xliff']['file']['body']['trans-unit'] = with_file_trans_units
-
-    xml = xmltodict.unparse(with_file_parsed)
-    pretty_print_output = str(parseString(xml).toprettyxml())
+    final_xlf_parser = XlfParser.from_trans_units(with_file_trans_units)
+    pretty_print_output = final_xlf_parser.to_xml()
 
     with open(OPTIONS['<output_file>'], 'w') as output_file_handle:
         output_file_handle.write(pretty_print_output)
@@ -134,9 +123,8 @@ def dupes():
     with open(OPTIONS['<file>'], 'r') as file_handle:
         file = file_handle.read()
 
-    file_parsed = xmltodict.parse(file, dict_constructor=dict)
-
-    file_trans_units = get_file_trans_units(file_parsed)
+    from_file_xlf_parser = XlfParser.from_xml(file)
+    file_trans_units = from_file_xlf_parser.get_trans_units()
 
     key = {
         'id': '@id',

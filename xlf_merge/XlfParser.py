@@ -23,11 +23,12 @@ class XlfParser:
         for trans_units_element in trans_units_elements:
 
             source = trans_units_element.find('source', nsmap)
-            source_text = source.text if source.text else '' + b''.join(etree.tostring(e) for e in source).decode('UTF-8')
-
+            source_text_first = source.text if source.text else ''
+            source_text = source_text_first + b''.join(etree.tostring(e) for e in source).decode('UTF-8')
             target = trans_units_element.find('target', nsmap)
             if target is not None:
-                target_text = target.text if target.text else '' + b''.join(etree.tostring(e) for e in target).decode('UTF-8')
+                target_text_first = target.text if target.text else ''
+                target_text = target_text_first + b''.join(etree.tostring(e) for e in target).decode('UTF-8')
             else:
                 target_text = ''
 

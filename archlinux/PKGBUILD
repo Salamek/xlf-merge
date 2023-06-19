@@ -1,5 +1,5 @@
 pkgname=xlf-merge
-pkgver=0.1.4
+pkgver=0.1.5
 pkgdesc="Python tool for merging xlf translation files"
 pkgrel=1
 arch=('any')

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='xlf-merge',
-    version='0.1.4',
+    version='0.1.5',
     packages=find_packages(exclude=['tests', 'tests.*']),
     package_data={'xlf_merge': ['py.typed']},
     install_requires=[

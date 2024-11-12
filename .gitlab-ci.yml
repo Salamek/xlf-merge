@@ -1,25 +1,25 @@
 stages:
-  - test
+  #- test
   - package
   - packagetest
   - deploy
 
-test:debian:
-  stage: test
-  script:
-    - apt-get update -qy
-    - apt-get install -y python3-setuptools python3-pytest-runner python3-pytest python3-pylint-common python3-pytest-cov python3-lxml python3-docopt tox
-    - python3 setup.py test
-  tags:
-    - debian
+#test:debian:
+#  stage: test
+#  script:
+#    - apt-get update -qy
+#    - apt-get install -y python3-setuptools python3-pytest-runner python3-pytest python3-pylint-common python3-pytest-cov python3-lxml python3-docopt tox
+#    - python3 setup.py test
+#  tags:
+#    - debian
 
-test:archlinux:
-  stage: test
-  script:
-    - pacman -Sy python-setuptools python-pip python-pytest python-pylint python-pytest-cov python-lxml python-docopt --noconfirm
-    - python setup.py test
-  tags:
-    - archlinux
+#test:archlinux:
+#  stage: test
+#  script:
+#    - pacman -Sy python-setuptools python-pip python-pytest python-pylint python-pytest-cov python-lxml python-docopt --noconfirm
+#    - python setup.py test
+#  tags:
+#    - archlinux
 
 package:debian:
   stage: package

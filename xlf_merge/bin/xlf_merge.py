@@ -25,7 +25,7 @@ Options:
 
 import sys
 import signal
-from typing import List
+from typing import Callable, Dict, List
 from functools import wraps
 from xlf_merge.XlfParser import XlfParser
 
@@ -34,10 +34,9 @@ from docopt import docopt
 OPTIONS = docopt(__doc__)
 
 
-def find_trans_unit(needle: str, trans_units: List[dict], key: str) -> List[dict]:
-    if key.startswith('@'):
-        return list(filter(lambda d: d[1]['attrib'][key] == needle, enumerate(trans_units)))
-    return list(filter(lambda d: d[1][key] == needle, enumerate(trans_units)))
+def find_trans_unit(from_trans_unit: str, trans_units: List[dict], key: Callable[[dict], str]) -> List[dict]:
+    needle = key(from_trans_unit)
+    return list(filter(lambda d: key(d[1]) == needle, enumerate(trans_units)))
 
 
 def command(func):
@@ -74,6 +73,22 @@ def command(func):
     return wrapped
 
 
+def get_method(allowed_keys: Dict[str, Callable[[dict], str]], method: str) -> Callable[[dict], str]:
+    keys = [allowed_keys.get(key) for key in method.split('/')]
+    if len(keys) < 1 or None in keys:
+        raise Exception('Unknown match method {}'.format(method))
+
+    def key(d) -> str:
+        for key in keys:
+            try:
+                return key(d)
+            except KeyError:
+                continue
+        raise KeyError()
+
+    return key
+
+
 @command
 def merge() -> None:
 
@@ -89,13 +104,10 @@ def merge() -> None:
     from_file_trans_units = from_file_xlf_parser.get_trans_units()
     with_file_trans_units = with_file_xlf_parser.get_trans_units()
 
-    key = {
-        'id': '@id',
-        'source': 'source'
-    }.get(OPTIONS['--method'])
-
-    if not key:
-        raise Exception('Unknown match method {}'.format(OPTIONS['--method']))
+    key = get_method({
+        'id': lambda d: d['attrib']['id'],
+        'source': lambda d: d['source']
+    }, OPTIONS['--method'])
 
     # We are merging from_file to with_file
     # That means list over stuff in from_file and merge it into with_file
@@ -103,7 +115,7 @@ def merge() -> None:
     for from_file_trans_unit in from_file_trans_units:
         if not from_file_trans_unit.get('target'):
             continue
-        for (found_index, found_trans_unit) in find_trans_unit(from_file_trans_unit[key], with_file_trans_units, key):
+        for (found_index, found_trans_unit) in find_trans_unit(from_file_trans_unit, with_file_trans_units, key):
             # Modify found trans_unit with new info
             found_trans_unit['target'] = from_file_trans_unit['target']
 
@@ -126,27 +138,26 @@ def dupes():
     from_file_xlf_parser = XlfParser.from_xml(file)
     file_trans_units = from_file_xlf_parser.get_trans_units()
 
-    key = {
-        'id': '@id',
-        'source': 'source',
-        'target': 'target'
-    }.get(OPTIONS['--method'])
-
-    if not key:
-        raise Exception('Unknown match method {}'.format(OPTIONS['--method']))
+    method = OPTIONS['--method']
+    key = get_method({
+        'id': lambda d: d['attrib']['id'],
+        'source': lambda d: d['source'],
+        'target': lambda d: d['target']
+    }, method)
 
     matches = {}  # key to int
     for file_trans_unit in file_trans_units:
-        if not isinstance(file_trans_unit[key], str):
+        needle = key(file_trans_unit)
+        if not isinstance(needle, str):
             continue
-        if file_trans_unit[key] in matches:
-            matches[file_trans_unit[key]] += 1
+        if needle in matches:
+            matches[needle] += 1
         else:
-            matches[file_trans_unit[key]] = 1
+            matches[needle] = 1
 
     for mkey, value in matches.items():
         if value > 1:
-            print('{}="{}" was found {} times!'.format(key, mkey, value))
+            print('{}="{}" was found {} times!'.format(method, mkey, value))
 
     print('Done!')
 

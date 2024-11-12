@@ -12,7 +12,7 @@ class XlfParser:
         self.nsmap = nsmap
 
     @staticmethod
-    def from_xml(xls_content: str) -> 'XlfParser':
+    def from_xml(xls_content: str | bytes) -> 'XlfParser':
         root = XlfParser.parse_xml(xls_content)
 
         nsmap = root.nsmap
@@ -83,7 +83,7 @@ class XlfParser:
 
         root.append(file)
 
-        xml = XlfParser.generate_xml(root)
+        xml: bytes = XlfParser.generate_xml(root)
 
         return XlfParser(trans_units, XlfParser.parse_xml(xml), nsmap)
 
@@ -100,7 +100,7 @@ class XlfParser:
             else:
                 content_tag.append(elem)
 
-    def to_xml(self) -> str:
+    def to_xml(self) -> bytes:
         file = self.root.find('file', self.nsmap)
         body = file.find('body', self.nsmap)
         body.clear()
@@ -133,11 +133,13 @@ class XlfParser:
         return XlfParser.generate_xml(self.root)
 
     @staticmethod
-    def parse_xml(xml: str) -> etree.Element:
+    def parse_xml(xml: str | bytes) -> etree.Element:
         parser = etree.XMLParser(recover=True, remove_blank_text=True)
-        el = etree.ElementTree(etree.fromstring(xml.encode('UTF-8'), parser))
+        if not isinstance(xml, bytes):
+            xml = xml.encode('UTF-8')
+        el = etree.ElementTree(etree.fromstring(xml, parser))
         return el.getroot()
 
     @staticmethod
-    def generate_xml(root: etree.Element) -> str:
-        return etree.tostring(root, encoding='utf8', method='xml', pretty_print=True, xml_declaration=True).decode('UTF-8')
+    def generate_xml(root: etree.Element) -> bytes:
+        return etree.tostring(root, encoding='utf8', method='xml', pretty_print=True, xml_declaration=True)

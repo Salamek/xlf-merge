@@ -77,11 +77,11 @@ def command(func):
 @command
 def merge() -> None:
 
-    with open(OPTIONS['<from_file>'], 'r') as from_file_handle:
-        from_file = from_file_handle.read()
+    with open(OPTIONS['<from_file>'], 'rb') as from_file_handle:
+        from_file: bytes = from_file_handle.read()
 
-    with open(OPTIONS['<with_file>'], 'r') as with_file_handle:
-        with_file = with_file_handle.read()
+    with open(OPTIONS['<with_file>'], 'rb') as with_file_handle:
+        with_file: bytes = with_file_handle.read()
 
     from_file_xlf_parser = XlfParser.from_xml(from_file)
     with_file_xlf_parser = XlfParser.from_xml(with_file)
@@ -114,7 +114,7 @@ def merge() -> None:
     final_xlf_parser = XlfParser.from_trans_units(with_file_trans_units)
     pretty_print_output = final_xlf_parser.to_xml()
 
-    with open(OPTIONS['<output_file>'], 'w') as output_file_handle:
+    with open(OPTIONS['<output_file>'], 'wb') as output_file_handle:
         output_file_handle.write(pretty_print_output)
 
 

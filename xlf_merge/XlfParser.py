@@ -68,13 +68,15 @@ class XlfParser:
         return XlfParser(trans_units, root, nsmap)
 
     @staticmethod
-    def from_trans_units(trans_units: List[dict]) -> 'XlfParser':
+    def from_trans_units(trans_units: List[dict], target_language: str | None = None) -> 'XlfParser':
         nsmap = {None: 'urn:oasis:names:tc:xliff:document:1.2'}
         root = etree.Element('xliff', nsmap=nsmap)
         root.set('version', '1.2')
 
         file = etree.Element('file', nsmap=nsmap)
         file.set('source-language', 'en')
+        if target_language:
+            file.set('target-language', target_language)
         file.set('datatype', 'plaintext')
         file.set('original', 'ng2.template')
 
@@ -100,6 +102,9 @@ class XlfParser:
                 content_tag.text = elem
             else:
                 content_tag.append(elem)
+
+    def get_target_language(self):
+        return self.root.find('file', self.nsmap).get('target-language')
 
     def to_xml(self) -> bytes:
         file = self.root.find('file', self.nsmap)

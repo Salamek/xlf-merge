@@ -123,7 +123,8 @@ def merge() -> None:
             del with_file_trans_units[found_index]
             with_file_trans_units.insert(found_index, found_trans_unit)
 
-    final_xlf_parser = XlfParser.from_trans_units(with_file_trans_units)
+    target_language = from_file_xlf_parser.get_target_language()
+    final_xlf_parser = XlfParser.from_trans_units(with_file_trans_units, target_language)
     pretty_print_output = final_xlf_parser.to_xml()
 
     with open(OPTIONS['<output_file>'], 'wb') as output_file_handle:

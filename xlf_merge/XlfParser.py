@@ -1,5 +1,8 @@
 from lxml import etree, html
+import re
 from typing import List
+
+re_xml_open_close = re.compile(rb'(?:^<[^>]+>)|(?:</[^>]+>$)')
 
 
 class XlfParser:
@@ -14,8 +17,8 @@ class XlfParser:
     @staticmethod
     def from_xml(xls_content: str | bytes) -> 'XlfParser':
         root = XlfParser.parse_xml(xls_content)
-
         nsmap = root.nsmap
+
         file = root.find('file', nsmap)
         body = file.find('body', nsmap)
         trans_units = []
@@ -23,12 +26,10 @@ class XlfParser:
         for trans_units_element in trans_units_elements:
 
             source = trans_units_element.find('source', nsmap)
-            source_text_first = source.text if source.text else ''
-            source_text = source_text_first + b''.join(etree.tostring(e) for e in source).decode('UTF-8')
+            source_text = re_xml_open_close.sub(b'', etree.tostring(source))
             target = trans_units_element.find('target', nsmap)
             if target is not None:
-                target_text_first = target.text if target.text else ''
-                target_text = target_text_first + b''.join(etree.tostring(e) for e in target).decode('UTF-8')
+                target_text = re_xml_open_close.sub(b'', etree.tostring(target))
             else:
                 target_text = ''
 
@@ -67,13 +68,15 @@ class XlfParser:
         return XlfParser(trans_units, root, nsmap)
 
     @staticmethod
-    def from_trans_units(trans_units: List[dict]) -> 'XlfParser':
+    def from_trans_units(trans_units: List[dict], target_language: str | None = None) -> 'XlfParser':
         nsmap = {None: 'urn:oasis:names:tc:xliff:document:1.2'}
         root = etree.Element('xliff', nsmap=nsmap)
         root.set('version', '1.2')
 
         file = etree.Element('file', nsmap=nsmap)
         file.set('source-language', 'en')
+        if target_language:
+            file.set('target-language', target_language)
         file.set('datatype', 'plaintext')
         file.set('original', 'ng2.template')
 
@@ -99,6 +102,9 @@ class XlfParser:
                 content_tag.text = elem
             else:
                 content_tag.append(elem)
+
+    def get_target_language(self):
+        return self.root.find('file', self.nsmap).get('target-language')
 
     def to_xml(self) -> bytes:
         file = self.root.find('file', self.nsmap)

@@ -34,7 +34,7 @@ from docopt import docopt
 OPTIONS = docopt(__doc__)
 
 
-def find_trans_unit(from_trans_unit: str, trans_units: List[dict], key: Callable[[dict], str]) -> Iterable[dict]:
+def find_trans_unit(from_trans_unit: dict, trans_units: List[dict], key: Callable[[dict], str]) -> Iterable[dict]:
     needle = key(from_trans_unit)
     return filter(lambda d: key(d[1]) == needle, enumerate(trans_units))
 
@@ -164,7 +164,7 @@ def dupes():
 
 
 def main() -> None:
-    signal.signal(signal.SIGINT, lambda *_: sys.exit(0))  # Properly handle Control+C
+    signal.signal(signal.SIGINT, lambda _i, _f: sys.exit(0))  # Properly handle Control+C
     getattr(command, 'chosen')()  # Execute the function specified by the user.
 
 

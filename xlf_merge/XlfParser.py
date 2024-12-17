@@ -2,7 +2,9 @@ from lxml import etree, html
 import re
 from typing import List
 
-re_xml_open_close = re.compile(rb'(?:^<[^>]+>)|(?:</[^>]+>$)')
+
+# Regex to strip starting and ending XML tags of a byte string
+re_xml_open_close = re.compile(rb'^<[^>]+>|</[^>]+>$')
 
 
 class XlfParser:

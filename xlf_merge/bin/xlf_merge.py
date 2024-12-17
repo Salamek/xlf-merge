@@ -25,7 +25,7 @@ Options:
 
 import sys
 import signal
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Iterable
 from functools import wraps
 from xlf_merge.XlfParser import XlfParser
 
@@ -34,9 +34,9 @@ from docopt import docopt
 OPTIONS = docopt(__doc__)
 
 
-def find_trans_unit(from_trans_unit: str, trans_units: List[dict], key: Callable[[dict], str]) -> List[dict]:
+def find_trans_unit(from_trans_unit: str, trans_units: List[dict], key: Callable[[dict], str]) -> Iterable[dict]:
     needle = key(from_trans_unit)
-    return list(filter(lambda d: key(d[1]) == needle, enumerate(trans_units)))
+    return filter(lambda d: key(d[1]) == needle, enumerate(trans_units))
 
 
 def command(func):
@@ -115,7 +115,7 @@ def merge() -> None:
     for from_file_trans_unit in from_file_trans_units:
         if not from_file_trans_unit.get('target'):
             continue
-        for (found_index, found_trans_unit) in find_trans_unit(from_file_trans_unit, with_file_trans_units, key):
+        for found_index, found_trans_unit in find_trans_unit(from_file_trans_unit, with_file_trans_units, key):
             # Modify found trans_unit with new info
             found_trans_unit['target'] = from_file_trans_unit['target']
 

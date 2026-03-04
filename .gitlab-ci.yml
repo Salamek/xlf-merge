@@ -81,7 +81,7 @@ repoupdate:
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - apt-get update -y
-    - apt-get install twine python3-pip -y
+    - apt-get install twine python3-setuptools python3-wheel python3-build -y
     - eval $(ssh-agent -s)
     - ssh-add <(echo "$SSH_PRIVATE_KEY")
     - mkdir -p ~/.ssh
@@ -93,7 +93,7 @@ repoupdate:
     - scp deb_dist/*.deb www-data@192.168.1.27:/var/www/repository.salamek.cz/cache/deb/pub/all
     - ssh www-data@192.168.1.27 '/var/www/repository.salamek.cz/deb-pub-update.sh'
     - ssh www-data@192.168.1.27 '/var/www/repository.salamek.cz/arch-pub-update.sh'
-    - python3 setup.py sdist
+    - python3 -m build
     - twine upload dist/*
   dependencies:
     - package:archlinux
